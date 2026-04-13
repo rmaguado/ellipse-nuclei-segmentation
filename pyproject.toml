@@ -59,7 +59,7 @@ ellipse-nuclei-segmentation = "ellipse_nuclei_segmentation:napari.yaml"
 "User Support" = "https://github.com/rmaguado/ellipse-nuclei-segmentation/issues"
 
 [build-system]
-requires = ["setuptools>=77.0.3", "setuptools_scm"]
+requires = ["setuptools>=82.0.1", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
