@@ -20,13 +20,13 @@ from qtpy.QtWidgets import (
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QMouseEvent
 
-from .nd2_loader import ND2Loader
-from .annotations import (
+from ._nd2_loader import ND2Loader
+from ._annotations import (
     AnnotationManager,
     Ellipse2D,
     LineSegment,
 )
-from .visualization import ellipse_points_from_lines
+from ._visualization import ellipse_points_from_lines
 
 
 ANNOTATION_COLORS = {
