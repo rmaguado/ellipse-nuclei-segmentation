@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v2.1.0
+_src_path: https://github.com/napari/napari-plugin-template
+display_name: Ellipse Nuclei Segmentation
+email: ruben.morenoaguado@gmail.com
+full_name: Ruben Moreno-Aguado
+github_repository_url: https://github.com/rmaguado/ellipse-nuclei-segmentation
+github_username_or_organization: rmaguado
+include_reader_plugin: false
+include_sample_data_plugin: false
+include_widget_plugin: true
+include_writer_plugin: false
+install_dependabot: true
+install_precommit: true
+license: MIT
+module_name: ellipse_nuclei_segmentation
+plugin_name: ellipse-nuclei-segmentation
+short_description: A plugin to navigate a .nd2 file (confocal movie) and annotate
+    nuclei using ellipses.
