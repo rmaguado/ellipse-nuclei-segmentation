@@ -1,4 +1,4 @@
-__version__ = "1.0"
+__version__ = "0.1.0"
 
 from ._annotations import AnnotationManager, Ellipse2D
 from ._plugin import NucleiAnnotatorWidget
