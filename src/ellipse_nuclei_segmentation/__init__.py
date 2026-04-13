@@ -1,18 +1,12 @@
-try:
-    from ._version import version as __version__
-except ImportError:
-    __version__ = 'unknown'
+__version__ = "1.0"
 
-from ._widget import (
-    ExampleQWidget,
-    ImageThreshold,
-    threshold_autogenerate_widget,
-    threshold_magic_widget,
-)
+from ._annotations import AnnotationManager, Ellipse2D
+from ._plugin import NucleiAnnotatorWidget
+from ._nd2_loader import ND2Loader
 
-__all__ = (
-    'ExampleQWidget',
-    'ImageThreshold',
-    'threshold_autogenerate_widget',
-    'threshold_magic_widget',
-)
+__all__ = [
+    "NucleiAnnotatorWidget",
+    "ND2Loader",
+    "AnnotationManager",
+    "Ellipse2D",
+]

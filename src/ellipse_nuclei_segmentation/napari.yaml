@@ -6,31 +6,12 @@ visibility: public
 # categories: []
 contributions:
   commands:
-    - id: ellipse-nuclei-segmentation.make_container_widget
-      python_name: ellipse_nuclei_segmentation:ImageThreshold
-      title: Make threshold Container widget
-    - id: ellipse-nuclei-segmentation.make_magic_widget
-      python_name: ellipse_nuclei_segmentation:threshold_magic_widget
-      title: Make threshold magic widget
-    - id: ellipse-nuclei-segmentation.make_function_widget
-      python_name: ellipse_nuclei_segmentation:threshold_autogenerate_widget
-      title: Make threshold function widget
-    - id: ellipse-nuclei-segmentation.make_qwidget
-      python_name: ellipse_nuclei_segmentation:ExampleQWidget
-      title: Make example QWidget
+    - id: 
+      python_name: 
+      title: 
   widgets:
-    - command: ellipse-nuclei-segmentation.make_container_widget
-      display_name: Container Threshold
-    - command: ellipse-nuclei-segmentation.make_magic_widget
-      display_name: Magic Threshold
-    - command: ellipse-nuclei-segmentation.make_function_widget
-      autogenerate: true
-      display_name: Autogenerate Threshold
-    - command: ellipse-nuclei-segmentation.make_qwidget
-      display_name: Example QWidget
+    - command: 
+      display_name: 
   menus:
     napari/layers/segment:
-      - command: ellipse-nuclei-segmentation.make_container_widget
-      - command: ellipse-nuclei-segmentation.make_magic_widget
-      - command: ellipse-nuclei-segmentation.make_function_widget
-      - command: ellipse-nuclei-segmentation.make_qwidget
+      - 
