@@ -8,7 +8,7 @@ github_repository_url: https://github.com/rmaguado/ellipse-nuclei-segmentation
 github_username_or_organization: rmaguado
 include_reader_plugin: false
 include_sample_data_plugin: false
-include_widget_plugin: true
+include_widget_plugin: false
 include_writer_plugin: false
 install_dependabot: true
 install_precommit: true

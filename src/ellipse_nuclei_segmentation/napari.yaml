@@ -1,17 +1,11 @@
 name: ellipse-nuclei-segmentation
 display_name: Ellipse Nuclei Segmentation
-# use 'hidden' to remove plugin from napari hub search results
 visibility: public
-# see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
-# categories: []
 contributions:
   commands:
-    - id: 
-      python_name: 
-      title: 
+    - id: ellipse-nuclei-segmentation.nuclei_annotator_widget
+      python_name: ellipse_nuclei_segmentation._plugin:NucleiAnnotatorWidget
+      title: Nuclei Annotator
   widgets:
-    - command: 
-      display_name: 
-  menus:
-    napari/layers/segment:
-      - 
+    - command: ellipse-nuclei-segmentation.nuclei_annotator_widget
+      display_name: Nuclei Annotator
