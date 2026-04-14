@@ -107,15 +107,12 @@ class Ellipse2D:
 
 
 class AnnotationManager:
-    def __init__(self, output_dir: str = "output", checkpoint_interval: int = 30):
+    def __init__(self, output_dir: Optional[str] = None, checkpoint_interval: int = 30):
         self.output_dir = output_dir
         self.checkpoint_interval = checkpoint_interval
         self.annotations: list = []
         self.nd2_path: str = ""
         self._last_checkpoint = time.time()
-
-        os.makedirs(output_dir, exist_ok=True)
-        os.makedirs(os.path.join(output_dir, "checkpoints"), exist_ok=True)
 
     def add(self, annotation):
         self.annotations.append(annotation)
@@ -146,6 +143,9 @@ class AnnotationManager:
         return [a.to_dict() for a in self.annotations]
 
     def save(self, filename: str = "annotations.json"):
+        if self.output_dir is None:
+            return None
+        os.makedirs(self.output_dir, exist_ok=True)
         filepath = os.path.join(self.output_dir, filename)
         data = {
             "version": "1.0",
@@ -159,6 +159,8 @@ class AnnotationManager:
         return filepath
 
     def load(self, filename: str = "annotations.json"):
+        if self.output_dir is None:
+            return
         filepath = os.path.join(self.output_dir, filename)
         if not os.path.exists(filepath):
             return
@@ -171,9 +173,12 @@ class AnnotationManager:
             self.annotations.append(Ellipse2D.from_dict(d))
 
     def save_checkpoint(self):
+        if self.output_dir is None:
+            return None
+        ckpt_dir = os.path.join(self.output_dir, ".napari_checkpoints")
+        os.makedirs(ckpt_dir, exist_ok=True)
         ts = time.strftime("%Y%m%d_%H%M%S")
         filename = f"checkpoint_{ts}.json"
-        ckpt_dir = os.path.join(self.output_dir, "checkpoints")
         filepath = os.path.join(ckpt_dir, filename)
 
         data = {
@@ -190,7 +195,9 @@ class AnnotationManager:
         return filepath
 
     def load_latest_checkpoint(self):
-        ckpt_dir = os.path.join(self.output_dir, "checkpoints")
+        if self.output_dir is None:
+            return False
+        ckpt_dir = os.path.join(self.output_dir, ".napari_checkpoints")
         if not os.path.exists(ckpt_dir):
             return False
 

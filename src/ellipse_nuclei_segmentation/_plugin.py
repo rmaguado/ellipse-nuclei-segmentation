@@ -73,7 +73,7 @@ class NucleiAnnotatorWidget(QWidget):
         self.viewer = napari_viewer
 
         self.loader: ND2Loader | None = None
-        self.annotation_mgr = AnnotationManager(output_dir="output")
+        self.annotation_mgr = AnnotationManager()
         self.current_frame = 0
 
         self._drawing_mode = None
@@ -770,7 +770,8 @@ class NucleiAnnotatorWidget(QWidget):
     def _on_save(self):
         ts = time.strftime("%Y%m%d_%H%M%S")
         default_name = f"annotations_{ts}.json"
-        default_path = os.path.join(self.annotation_mgr.output_dir, default_name)
+        base_dir = self.annotation_mgr.output_dir or ""
+        default_path = os.path.join(base_dir, default_name) if base_dir else default_name
         path, _ = QFileDialog.getSaveFileName(
             self, "Save annotations", default_path, "JSON files (*.json)"
         )
@@ -788,7 +789,7 @@ class NucleiAnnotatorWidget(QWidget):
         path, _ = QFileDialog.getOpenFileName(
             self,
             "Load annotations",
-            self.annotation_mgr.output_dir,
+            self.annotation_mgr.output_dir or "",
             "JSON files (*.json)",
         )
         if not path:

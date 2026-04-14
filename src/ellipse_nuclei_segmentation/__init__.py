@@ -1,4 +1,7 @@
-__version__ = "0.1.1"
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown"
 
 from ._annotations import AnnotationManager, Ellipse2D
 from ._plugin import NucleiAnnotatorWidget
