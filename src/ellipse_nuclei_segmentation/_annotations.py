@@ -112,6 +112,7 @@ class AnnotationManager:
         self.checkpoint_interval = checkpoint_interval
         self.annotations: list = []
         self.nd2_path: str = ""
+        self.layer_colormaps: dict = {}
         self._last_checkpoint = time.time()
 
     def add(self, annotation):
@@ -151,6 +152,7 @@ class AnnotationManager:
             "version": "1.0",
             "timestamp": time.time(),
             "nd2_path": self.nd2_path,
+            "layer_colormaps": self.layer_colormaps,
             "n_annotations": len(self.annotations),
             "annotations": self.to_dict_list(),
         }
@@ -168,6 +170,7 @@ class AnnotationManager:
         with open(filepath, "r") as f:
             data = json.load(f)
 
+        self.layer_colormaps = data.get("layer_colormaps", {})
         self.annotations = []
         for d in data.get("annotations", []):
             self.annotations.append(Ellipse2D.from_dict(d))
@@ -185,6 +188,7 @@ class AnnotationManager:
             "version": "1.0",
             "timestamp": time.time(),
             "nd2_path": self.nd2_path,
+            "layer_colormaps": self.layer_colormaps,
             "n_annotations": len(self.annotations),
             "annotations": self.to_dict_list(),
         }

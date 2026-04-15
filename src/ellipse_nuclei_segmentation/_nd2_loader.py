@@ -30,15 +30,20 @@ class ND2Loader:
         frame = np.asarray(self.movie[frame_num])
         return rearrange(frame, "z c y x -> c z y x")
 
-    def get_channels(self, frame_num: int):
+    def get_all_channels(self, frame_num: int) -> list:
+        """Return a list of arrays, one per channel, for the given frame."""
         volume = self.read_frame(frame_num)
-        gfp = volume[0].astype(np.float32)
-        bf = volume[1].astype(np.float32)
-        return gfp, bf
+        return [volume[i].astype(np.float32) for i in range(volume.shape[0])]
 
     @property
-    def channel_names(self):
-        return ["GFP", "BF"]
+    def n_channels(self) -> int:
+        if self.movie is not None:
+            return self.movie.shape[2]  # (frames, z, c, y, x)
+        return 0
+
+    @property
+    def channel_names(self) -> list:
+        return [str(i) for i in range(self.n_channels)]
 
     @property
     def n_z_slices(self):

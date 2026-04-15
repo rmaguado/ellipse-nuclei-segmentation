@@ -85,8 +85,7 @@ class NucleiAnnotatorWidget(QWidget):
 
         self._ann_layer_indices: dict = {}
 
-        self._gfp_layer = None
-        self._bf_layer = None
+        self._channel_layers: list = []
         self._click_pts_layer = None
         self._lines_layer = None
         self._ellipse_layer = None
@@ -225,26 +224,28 @@ class NucleiAnnotatorWidget(QWidget):
         if self.loader is None:
             return
 
-        gfp, bf = self.loader.get_channels(frame_id)
+        channels = self.loader.get_all_channels(frame_id)
 
-        for layer in [self._gfp_layer, self._bf_layer]:
-            if layer is not None and layer in self.viewer.layers:
-                self.viewer.layers.remove(layer)
-
-        self._bf_layer = self.viewer.add_image(
-            bf,
-            name="BF",
-            colormap="gray",
-            blending="additive",
-            opacity=0.6,
-        )
-        self._gfp_layer = self.viewer.add_image(
-            gfp,
-            name="GFP",
-            colormap="green",
-            blending="additive",
-            opacity=0.8,
-        )
+        if self._channel_layers and len(self._channel_layers) == len(channels):
+            # Update data in-place to preserve visibility and colormap settings
+            for layer, ch_data in zip(self._channel_layers, channels):
+                if layer in self.viewer.layers:
+                    layer.data = ch_data
+        else:
+            # First load or channel count changed — create layers from scratch
+            for layer in self._channel_layers:
+                if layer in self.viewer.layers:
+                    self.viewer.layers.remove(layer)
+            self._channel_layers = []
+            for i, ch_data in enumerate(channels):
+                layer = self.viewer.add_image(
+                    ch_data,
+                    name=str(i),
+                    colormap="gray",
+                    blending="additive",
+                    opacity=0.8,
+                )
+                self._channel_layers.append(layer)
 
         self._ensure_overlay_layers()
         self.current_frame = frame_id
@@ -777,6 +778,12 @@ class NucleiAnnotatorWidget(QWidget):
         )
         if not path:
             return
+        # Snapshot current colormaps for each channel layer
+        colormaps = {}
+        for i, layer in enumerate(self._channel_layers):
+            if layer in self.viewer.layers:
+                colormaps[str(i)] = layer.colormap.name
+        self.annotation_mgr.layer_colormaps = colormaps
         filename = os.path.basename(path)
         self.annotation_mgr.output_dir = os.path.dirname(path)
         self.annotation_mgr.save(filename)
@@ -828,14 +835,26 @@ class NucleiAnnotatorWidget(QWidget):
         self.annotation_mgr.load(filename)
         self.annotation_mgr.output_dir = old
 
+        # Apply saved colormaps to channel layers
+        colormaps = self.annotation_mgr.layer_colormaps
+        for i, layer in enumerate(self._channel_layers):
+            key = str(i)
+            if key in colormaps and layer in self.viewer.layers:
+                try:
+                    layer.colormap = colormaps[key]
+                except Exception:
+                    pass
+
         self._ann_layer_indices = {}
         self._refresh_annotation_list()
         self._set_overlay_layers_visible(True)
         self._refresh_annotation_visuals()
 
     def _shortcut_toggle_bf(self, viewer=None):
-        if self._bf_layer is not None and self._bf_layer in self.viewer.layers:
-            self._bf_layer.visible = not self._bf_layer.visible
+        if len(self._channel_layers) > 1:
+            layer = self._channel_layers[1]
+            if layer in self.viewer.layers:
+                layer.visible = not layer.visible
 
     def _shortcut_new_annotation(self, viewer=None):
         if self._drawing_mode is not None:
