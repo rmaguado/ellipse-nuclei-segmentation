@@ -19,6 +19,8 @@ from qtpy.QtWidgets import (
 )
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QMouseEvent
+from napari.viewer import Viewer
+from napari.layers import Layer
 
 from ._nd2_loader import ND2Loader
 from ._annotations import (
@@ -68,15 +70,33 @@ class DeselectableListWidget(QListWidget):
 
 
 class NucleiAnnotatorWidget(QWidget):
-    def __init__(self, napari_viewer):
+    viewer: Viewer
+    loader: ND2Loader | None
+    annotation_mgr: AnnotationManager | None
+    current_frame: int
+    _drawing_mode: str | None
+    _current_annotation: Ellipse2D | None
+    _collected_points: list
+    _segments_done: list
+    _n_points_before: int
+    _undo_history: list
+    _channel_layers: list
+    _click_pts_layer: Layer | None
+    _lines_layer: Layer | None
+    _ellipse_layer: Layer | None
+
+    def __init__(self, napari_viewer: Viewer):
         super().__init__()
         self.viewer = napari_viewer
+        self._reset_annotations()
+        self._build_ui()
+        self._bind_keys()
 
-        self.loader: ND2Loader | None = None
+    def _reset_annotations(self):
         self.annotation_mgr = AnnotationManager()
         self.current_frame = 0
-
         self._drawing_mode = None
+
         self._current_annotation = None
         self._collected_points: list = []
         self._segments_done: list = []
@@ -90,7 +110,7 @@ class NucleiAnnotatorWidget(QWidget):
         self._lines_layer = None
         self._ellipse_layer = None
 
-        self._build_ui()
+    def _bind_keys(self):
         self.viewer.bind_key("g", self._shortcut_new_annotation, overwrite=True)
         self.viewer.bind_key("Escape", self._shortcut_escape, overwrite=True)
         self.viewer.bind_key("b", self._shortcut_toggle_bf, overwrite=True)
@@ -100,13 +120,15 @@ class NucleiAnnotatorWidget(QWidget):
         )
         self.viewer.mouse_double_click_callbacks = [self._on_viewer_mouse_press]
 
-    def hideEvent(self, a0):
+    def _unbind_keys(self):
         for key in ("g", "Escape", "b", "Meta-z", "Meta-BackSpace"):
             try:
                 self.viewer.bind_key(key, None)
             except Exception:
                 pass
         self.viewer.mouse_double_click_callbacks = []
+
+    def _destroy_layers(self):
         layers_to_remove = list(self._channel_layers) + [
             self._click_pts_layer,
             self._lines_layer,
@@ -123,6 +145,11 @@ class NucleiAnnotatorWidget(QWidget):
         self._click_pts_layer = None
         self._lines_layer = None
         self._ellipse_layer = None
+
+    def hideEvent(self, a0):
+        self._unbind_keys()
+        self._destroy_layers()
+        self._reset_annotations()
         super().hideEvent(a0)
 
     @property
@@ -231,13 +258,16 @@ class NucleiAnnotatorWidget(QWidget):
         )
         if not path:
             return
+        self._destroy_layers()
+        self._reset_annotations()
+        self._refresh_annotation_list()
         try:
             self.loader = ND2Loader(path)
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to load ND2:\n{e}")
             return
 
-        self.annotation_mgr.nd2_path = path
+        self.annotation_mgr.nd2_path = path  # type: ignore
         self.spin_frame.blockSignals(True)
         self.spin_frame.setMaximum(self.loader.n_frames - 1)
         self.spin_frame.setValue(0)
