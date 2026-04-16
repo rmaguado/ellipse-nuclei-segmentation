@@ -91,12 +91,39 @@ class NucleiAnnotatorWidget(QWidget):
         self._ellipse_layer = None
 
         self._build_ui()
-        self.viewer.bind_key("g", self._shortcut_new_annotation)
-        self.viewer.bind_key("Escape", self._shortcut_escape)
-        self.viewer.bind_key("b", self._shortcut_toggle_bf)
-        self.viewer.bind_key("Meta-z", self._shortcut_undo_last)
-        self.viewer.bind_key("Meta-BackSpace", self._shortcut_delete_selected)
+        self.viewer.bind_key("g", self._shortcut_new_annotation, overwrite=True)
+        self.viewer.bind_key("Escape", self._shortcut_escape, overwrite=True)
+        self.viewer.bind_key("b", self._shortcut_toggle_bf, overwrite=True)
+        self.viewer.bind_key("Meta-z", self._shortcut_undo_last, overwrite=True)
+        self.viewer.bind_key(
+            "Meta-BackSpace", self._shortcut_delete_selected, overwrite=True
+        )
         self.viewer.mouse_double_click_callbacks = [self._on_viewer_mouse_press]
+
+    def hideEvent(self, a0):
+        for key in ("g", "Escape", "b", "Meta-z", "Meta-BackSpace"):
+            try:
+                self.viewer.bind_key(key, None)
+            except Exception:
+                pass
+        self.viewer.mouse_double_click_callbacks = []
+        layers_to_remove = list(self._channel_layers) + [
+            self._click_pts_layer,
+            self._lines_layer,
+            self._ellipse_layer,
+        ]
+        for layer in layers_to_remove:
+            if layer is not None and layer in self.viewer.layers:
+                try:
+                    self.viewer.layers.remove(layer)
+                except Exception:
+                    pass
+
+        self._channel_layers = []
+        self._click_pts_layer = None
+        self._lines_layer = None
+        self._ellipse_layer = None
+        super().hideEvent(a0)
 
     @property
     def _viewer_z(self) -> float:
@@ -772,7 +799,9 @@ class NucleiAnnotatorWidget(QWidget):
         ts = time.strftime("%Y%m%d_%H%M%S")
         default_name = f"annotations_{ts}.json"
         base_dir = self.annotation_mgr.output_dir or ""
-        default_path = os.path.join(base_dir, default_name) if base_dir else default_name
+        default_path = (
+            os.path.join(base_dir, default_name) if base_dir else default_name
+        )
         path, _ = QFileDialog.getSaveFileName(
             self, "Save annotations", default_path, "JSON files (*.json)"
         )
